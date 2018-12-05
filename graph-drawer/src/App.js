@@ -3,7 +3,38 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      isLoaded: false,
+      node: null,
+      error: null
+    };
+  }
+
+  componentDidMount() {
+    fetch("http://localhost:50279/api/graphs/default")
+      .then(res => res.json())
+      .then(
+        node => {
+          this.setState({
+            isLoaded: true,
+            node: node
+          });
+        },
+        error => {
+          this.setState({
+            isLoaded: true,
+            error: error
+          });
+        }
+      )
+  }
+
   render() {
+    const node =  this.state.node;
+    console.log(node);
     return (
       <div className="App">
         <header className="App-header">
@@ -19,6 +50,13 @@ class App extends Component {
           >
             Learn React
           </a>
+          {
+            node ? (
+              <p>
+                Parent node name: {node.name}
+              </p>
+            ) : null
+          }
         </header>
       </div>
     );

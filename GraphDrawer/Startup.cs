@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +26,24 @@ namespace GraphDrawer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            AddCors(services);
+        }
+
+        private static void AddCors(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAnyOrigin",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAnyOrigin"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,6 +55,13 @@ namespace GraphDrawer
             }
 
             app.UseMvc();
+
+            //// should work for ASP.NET Core 1.1
+            //app.UseCors(builder => builder
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader()
+            //    .AllowCredentials());
         }
     }
 }
